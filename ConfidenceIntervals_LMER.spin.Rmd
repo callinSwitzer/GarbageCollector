@@ -1,3 +1,5 @@
+
+```{r }
 # Callin Switzer
 # 17 Feb 2017
 # LMER prediction intervals and CI's 
@@ -133,3 +135,11 @@ ggplot(sleepstudy, aes(x = Days, y = Reaction, color = Subject)) +
      geom_line(data = preds, aes(x = Days, y = lwr), color = 'red', lty = 2)
 
 fm1
+```
+
+
+---
+title: "ConfidenceIntervals_LMER.R"
+author: "callinswitzer"
+date: "Sat Feb 18 11:08:04 2017"
+---
