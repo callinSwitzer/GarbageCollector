@@ -1,0 +1,30 @@
+---
+title: "BeeWingFreq"
+author: "Callin Switzer"
+date: "2/21/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Plot distribution of wingbeat frequency
+Recorded at the Arnold Arboretum and at CFS on wild-caught bumblebees (mostly B.impatiens). 
+```{r}
+dta = read.csv("/Users/callinswitzer/Dropbox/ExperimentsSummer2014/SonicationFreqLength/BuzzFreqRedoAll2013-LengthByHand.csv")
+
+hist(dta$wing1, freq = FALSE, xlab = "Wingbeat Frequency (Hz)")
+```
+
+# B. impatiens only
+```{r}
+hist(dta$wing1[dta$spp == "impatiens"], freq = FALSE, xlab = "Wingbeat Frequency (Hz)")
+
+```
+
+## plot size vs. wingbeat frequency
+```{r}
+plot(y = dta$wing1, x = dta$IT, xlab = "IT Span(mm)", ylab = "wing freq (Hz)")
+```
+
