@@ -1,0 +1,25 @@
+
+---
+title: "Dcast"
+author: "Callin Switzer"
+date: "3/29/2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Read in an example dataset
+```{r}
+library(faraway)
+myhsb <- hsb[c("gender", "race", "prog")]
+aa <- as.data.frame(xtabs( ~ race + gender + prog , myhsb))
+aa # this is the same format as the "afterlife" dataset
+
+```
+
+## Reshape the data
+``` {r}
+library(reshape2)
+pr <- dcast(aa, race + gender ~ prog, value.var = "Freq")
+pr
+```
