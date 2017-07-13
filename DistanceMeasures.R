@@ -64,10 +64,23 @@ points(0.225, y = 0.625)
 
 distt(c(0.225, 0.625), x4)
 
+distt1(c(0.225, 0.625), x3)
 
+disttinf(c(0.225, 0.625), x3)
+disttinf(c(0.225, 0.625), x4)
+
+(0.85 + 0.6) / 2
 # install.packages('proxy')
 
+# l1 norm
+proxy::dist(X, method = distt1)
+
+# l2 norm
 proxy::dist(X, method = distt)
+
+# linf norm
+proxy::dist(X, method = disttinf)
+
 
 # dist matrix for l1 norm
 plot(hclust(proxy::dist(X, method = distt1)))
@@ -78,7 +91,44 @@ plot(hclust(proxy::dist(X, method = distt)))
 # dist matrix for linf norm
 plot(hclust(proxy::dist(X, method = disttinf)))
 
-# dist for min
+
+
+# make dendrograms
+plot(hclust(proxy::dist(X, method = distt), method = 'average'), hang = -1)
+hcAv = hclust(proxy::dist(X, method = distt), method = 'average')
+
+
+pdf('clusters2.pdf', width = 8, height = 8)
+par(mfrow = c(2,2))
+
+# average
+plot(as.dendrogram(hcAv), main = "average")
+
+# centroid
+hh = hclust(proxy::dist(X, method = distt), method = 'complete')
+hh$height = c(0.35, 0.45, 0.6109902)
+plot(as.dendrogram(hh), main = 'centroid')
+
+
+#plot(as.dendrogram(hclust(proxy::dist(X, method = distt), method = 'ward.D2')), main = 'centroid')
+
+
+# minimum
+plot(as.dendrogram(hclust(proxy::dist(X, method = distt), method = 'single')), main = 'minimum')
+
+# minimum
+plot(as.dendrogram(hclust(proxy::dist(X, method = distt), method = 'complete')), main = 'maximum')
+dev.off()
+
+
+(distt(x1, x4) + distt(x1, x3) + distt(x2, x4) + distt(x2, x3)) / 4
 
 
 
+distt(c(0.225, 0.625), x4)
+
+distt(c(0.225, 0.625), x3)
+
+(x1[2] + x2[2] + x4[2]) / 3
+
+distt(c(0.15, 0.753), x3)
