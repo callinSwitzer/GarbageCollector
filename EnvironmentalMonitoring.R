@@ -22,7 +22,7 @@ bb = aa - hours(4)
 dd["temp.F."] = dd$temp * 9/5 + 32
 
 dd$light <- 1024 - dd$light
-quartz()
+x11()
 par(mfrow = c(5,1))
 par(mai = c(0.4, 0.5, 0.2, 0.5))
 for(ii in colnames(dd)[2:6]){
