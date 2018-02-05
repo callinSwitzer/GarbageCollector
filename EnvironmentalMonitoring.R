@@ -1,8 +1,29 @@
 fle = file.choose()
 fle
 
+directory = "E:"
 
-dd = read.csv(fle)
+ii = 30
+
+
+
+
+
+first = TRUE
+for(ii in 40:43){
+  fle = file.path(directory, paste0("LOGGER", ii, ".csv"))
+  tmp = read.csv(fle)
+  print(ii)
+  
+  if(first){
+    dd = data.frame(tmp)
+    first = FALSE
+  }
+  else{
+    dd = rbind(dd, tmp)
+  }
+}
+
 nrow(dd)
 
 
@@ -32,3 +53,6 @@ for(ii in colnames(dd)[2:6]){
   
 }
 
+length(preds)
+plot(preds)
+graphics.off()
