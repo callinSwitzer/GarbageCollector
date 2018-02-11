@@ -10,9 +10,9 @@ ii = 30
 
 
 first = TRUE
-for(ii in 40:43){
+for(ii in 30:44){
   fle = file.path(directory, paste0("LOGGER", ii, ".csv"))
-  tmp = read.csv(fle)
+  tmp = tryCatch(read.csv(fle), error = function(e) NA)
   print(ii)
   
   if(first){
@@ -24,6 +24,8 @@ for(ii in 40:43){
   }
 }
 
+nrow(dd)
+dd = dd[complete.cases(dd),]
 nrow(dd)
 
 
@@ -43,6 +45,8 @@ bb = aa - hours(4)
 dd["temp.F."] = dd$temp * 9/5 + 32
 
 dd$light <- 1024 - dd$light
+
+
 x11()
 par(mfrow = c(5,1))
 par(mai = c(0.4, 0.5, 0.2, 0.5))
