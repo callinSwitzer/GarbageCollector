@@ -11,16 +11,9 @@ path_pts = [
   
   
 difference(){
-cylinder(20, 14,14);
-  cylinder(4, 8,8);
-    cylinder(18, 6,6);
-    //translate([0,-2,4]) rotate([90,0,0]) cylinder(20, 6,2.5);
-    rotate([0,0,180]) translate([0,0,-2]) linear_extrude(20) polygon(path_pts);}
+ cylinder(40, 10,10);
+  cylinder(20, 7.5,7.5);
+    cylinder(38, 6,6);
+    translate([0,-2,18]) rotate([90,0,0]) cylinder(20, 4.8,4.7);
+    rotate([0,0,180]) translate([0,0,18]) linear_extrude(20) polygon(path_pts);}
     
-    
-    
-  
-
-
-
-
