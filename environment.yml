@@ -1,4 +1,4 @@
-name: opencv2
+name: opencv3
 channels:
   - conda-forge
   - defaults
