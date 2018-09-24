@@ -1,0 +1,167 @@
+---
+title: "FlowerPetalColorClustering"
+author: "Callin Switzer"
+date: "September 24, 2018"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+<pre>
+Goal: group images of petals, according to their color
+</pre>
+
+
+# Set options for knitr
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+
+# define data and figure directories
+windows = ifelse(grepl(pattern = "wind", ignore.case = TRUE, 
+                       x = Sys.info()[1]), TRUE, FALSE)
+  
+{if(windows){
+  rd = "D:/Dropbox/dataAnalysisForOthers/FlowerColorPhenotyping/"
+}
+else{
+  rd = "/Users/cswitzer/Dropbox/dataAnalysisForOthers/FlowerColorPhenotyping/"
+}}
+
+knitr::opts_knit$set(root.dir =rd )
+
+```
+
+# Install packages
+```{r, warning=FALSE, message = FALSE}
+# Setup
+# install.packages("imager")
+library(imager)
+library(ggplot2)
+library(tidyverse)
+```
+
+
+# Read in images from a directory
+* These images are in the form of png files
+* R reads them in with 4 color channels - red, green, blue, and transparency
+```{r}
+imageDirectory <- "D:\\Dropbox\\dataAnalysisForOthers\\FlowerColorPhenotyping"
+
+# keep only images that end with .png
+imageFileNames <- dir(imageDirectory, 
+                      full.names = TRUE)[grepl(pattern = "png", 
+                                               dir(imageDirectory, 
+                                                   full.names = FALSE))]
+```
+
+# Clean images (remove transparency)
+```{r}
+# function to remove the transparency channel
+removeAlpha <- function(img){
+  # note that this won't work for images with
+  # only 3 channels
+  
+  as.tbl(as.data.frame(img)) %>%
+    spread(key = cc, value = value, fill = 0) %>%
+    filter(`4` == 1) %>%
+    select(-`4`) %>%
+    gather(key = cc, value = value, `1`:`3`) %>%
+    mutate(cc = as.integer(cc)) 
+}
+
+
+# remove alpha channel for each image
+imageList = imlist()
+for(ii in 1:length(imageFileNames)){
+  tmp = load.image(imageFileNames[ii])
+  imageList[[ii]] <- removeAlpha(tmp)
+}
+```
+
+# Show images  
+* Previously transparent parts are shown in black
+```{r, warning=FALSE}
+par(mfrow = c(3,3))
+for(ii in 1:length(imageList)){
+  plot(as.cimg(as.data.frame(imageList[[ii]])))
+}
+```
+
+
+# Get color information for images
+* Make a data frame where each row is in individual flower
+```{r, warning = FALSE}
+histList = list()
+for(jj in 1:length(imageList)){
+  
+  # convert to colorspaces from RGB to Lab (a perceptually uniform colorspace -
+  # the numerical change corresponds to visually perceived change)
+  # see: https://en.wikipedia.org/wiki/CIELAB_color_space
+  im2 <- RGBtoLab(as.cimg(as.data.frame(imageList[[jj]])))
+  
+  
+  # filter out data where luminance is > 0 (i.e. 
+  # get rid of black)
+  bdf <- as.tbl(as.data.frame(im2)) %>%
+    # remove black
+    spread(key = cc, value = value) %>%
+    filter(`1` > 0) %>%
+    gather(key = cc, value = value, `1`:`3`) 
+  
+  
+  # concatenate histograms for each of L, a, and b
+  # into a single vector, so that we can later calculate 
+  # a distance matrix
+  aa <- c(hist(bdf$value[bdf$cc == "1"], 
+               breaks = seq(-100, 100,length.out = 100 ), plot = FALSE)$density, 
+          hist(bdf$value[bdf$cc == "3"], 
+               breaks = seq(-100, 100,length.out = 100 ), plot = FALSE)$density, 
+          hist(bdf$value[bdf$cc == "3"], 
+               breaks = seq(-100, 100,length.out = 100 ), plot = FALSE)$density)
+  # append to list
+  histList[[jj]] = aa
+  
+}
+
+# show example of historgrams in Lab colorspace
+# ggplot(bdf,aes(value,col=cc)) + 
+#   geom_histogram(bins=30)+
+#   facet_wrap(~ cc)
+
+
+# convert list to tbl
+labDF <- as.tbl(as.data.frame(do.call(rbind, histList)))
+
+
+# drop columns that are duplicated
+labDF <- labDF[!duplicated(as.list(labDF))]
+
+# double check that all rows have been standardized
+rowSums(labDF)
+```
+
+# Cluster images using heirarchical clustering
+* Note that many other clustering methods are available, such as K-nearest neighbors
+```{r, warning = FALSE}
+# first calculate distance matrix
+# dist(): compute the distances between the rows of a data matrix
+distMatrix <- dist(labDF)
+
+# use heirarchical clustering
+hcl = hclust(distMatrix)
+
+# plot dendrogram and images
+pdf("ClusterAndImages.pdf")
+par(mar = c(2,2,2,2))
+m <- rbind(c(1, 1,1,1,1),c(1, 1,1,1,1), c(2, 3,4,5,6), c(7,8,9,10,11))
+layout(m)
+
+#plot dendrogram
+plot(hcl)
+
+# plot images
+for(ii in 1:length(imageList)){
+  plot(as.cimg(as.data.frame(imageList[[ii]])), main = ii, ylim = c(0, 500))
+}
+dev.off()
+
+```
