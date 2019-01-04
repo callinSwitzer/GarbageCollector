@@ -55,3 +55,9 @@
 *.knit.md
 
 .Rproj.user
+
+
+
+# ipynb checkpoints
+/.ipynb_checkpoints
+
