@@ -58,7 +58,6 @@ binom.int$deviance - binom.snail$deviance
 
 
 # The Central Limit Theorem states that whenever a random sample of size n is taken from any distribution with mean and variance σ2, then the sample mean X ̄ will be approximately
-# 6
 # normally distributed with mean μ and variance σ2/n. The larger the value of the sample size n, the better the approximation to the normal.
 # This is very useful when it comes to inference. For example, it allows us (if the sample size is fairly large) to use hypothesis tests which assume normality even if our data appear non-normal. This is because the tests use the sample mean X ̄, which the Central Limit Theorem tells us will be approximately normally distributed.
 
