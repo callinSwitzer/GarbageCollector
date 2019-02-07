@@ -1,8 +1,8 @@
-f1 <- file.choose()
-#  "C:\\Users\\calli\\Documents\\GitRepos\\FlappingKinematics\\data\\FinalBeeRespData_raw.csv"
+#f1 <- file.choose()
+f1 <-   "C:\\Users\\calli\\Documents\\GitRepos\\FlappingKinematics\\data\\FinalBeeRespData_raw.csv"
 
-f_new <- file.choose()
-# "C:\\Users\\calli\\Documents\\GitRepos\\FlappingKinematics\\data\\beeRespData_final.csv"
+# f_new <- file.choose()
+f_new =  "C:\\Users\\calli\\Documents\\GitRepos\\FlappingKinematics\\data\\beeRespData_final.csv"
 
 
 library(tidyverse)
@@ -29,6 +29,9 @@ bdta <- oldF %>%
     BeeID = as.factor(as.character(BeeID))
   )
 
+# calculate mean + sd for each treatment
+tapply(bdta$amp, INDEX = bdta$Treatment, function(x) c(mean(x), sd(x)))
+
 
 bdta2 <- newF %>%
   mutate(
@@ -47,6 +50,9 @@ bdta2 <- newF %>%
     Treatment = as.factor(as.character(Treatment)),
     BeeID = as.factor(as.character(BeeID))
   )
+
+# calculate mean + sd for each treatment
+tapply(bdta2$amp, INDEX = bdta$Treatment, function(x) c(mean(x), sd(x)))
 
 
 all(colnames(bdta2) == colnames(bdta))
