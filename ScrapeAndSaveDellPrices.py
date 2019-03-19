@@ -33,7 +33,12 @@ def main():
     filePath = r"D:\Dropbox\AcademiaDropbox\dellXpsPrices.csv"
     exists = os.path.isfile(filePath)
 
-    with open(filePath, 'a+b') as myfile:
+    if sys.version[0:3] == '3.7':
+        openType = 'a+'
+    else:
+        openType = 'a+b'
+
+    with open(filePath, openType) as myfile:
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
         if not exists:
             wr.writerows([["RegPrice", "SalePrice", "Datetime"]])
