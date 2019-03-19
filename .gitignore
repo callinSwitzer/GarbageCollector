@@ -1,3 +1,7 @@
+# compiled python files
+*.pyc
+
+
 # History files
 .Rhistory
 .Rapp.history
