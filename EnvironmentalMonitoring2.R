@@ -12,8 +12,11 @@ tmp$time2 <- as.POSIXct(tmp$time, format = "%Y/%m/%d %H:%M:%S") - 3600*4
 tail(tmp)
 
 tmp$tmpF = tmp$temp * 9/5 + 32
+par(mfrow = c(3, 1))
 plot(tmpF ~ time2, data = tmp, type = 'l')
 
+
+plot(tmp$humidity ~ tmp$time2, type = 'l')
 
 tmp$light = 1024 - tmp$light
 
