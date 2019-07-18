@@ -109,7 +109,6 @@ points(y = wave2@left[pks],x = ((1:length(wave2@left))/wave2@samp.rate)[pks])
 
 # plot instantaneous freq
 ifreq = 1/(diff(pks)/wave2@samp.rate)
-plot(y = ifreq, x = ((1:length(wave2@left))/wave2@samp.rate)[pks][0:length(ifreq)], ylab = "freq ", xlab = "time", type = "l")
+plot(y = ifreq, x = ((1:length(wave2@left))/wave2@samp.rate)[pks][0:length(ifreq)], ylab = "freq (Hz)", xlab = "time (s)", type = "l")
 
-hanni 
 
