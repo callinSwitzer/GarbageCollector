@@ -58,7 +58,8 @@ plot(abs(amplitudeAndPhase), x = frq, type = "l", xlab = "freq (Hz)",
 
 par(mfrow=  c(3,1))
 
-# you can tune the width 
+# calculate the rolling variance
+# you can tune the width somewhat. 20 points seems fine here.
 rollingVar = rollapply(wave2@left, width = 20, FUN = var, fill = 0)
 
 # remove mean
