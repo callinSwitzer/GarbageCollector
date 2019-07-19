@@ -8,7 +8,8 @@ dataDir= "D:\\Dropbox\\AcademiaDropbox\\Reviews\\PeerJ_BuzzPollinationMexico"
 
 
 # Read in a portion of the audio recording
-wave1 = readWave(file.path(dataDir, "supplemental\\peerj-38132-Supplemental_Audio_S1.wav"), from = 1, to = 2, units = "seconds")
+wave1 = readWave(file.path(dataDir, "supplemental\\peerj-38132-Supplemental_Audio_S1.wav"), 
+                 from = 1, to = 2, units = "seconds")
 
 # get info
 print(wave1)
@@ -24,7 +25,8 @@ par(mfrow=  c(3,1))
 # plot data
 plot(wave2, main = "raw data")
 
-plot(y = wave2@left[1:4410],x = (1:4410)/wave2@samp.rate,  main = "raw data, zoomed", type = "l", xlab = "time", ylab = "")
+plot(y = wave2@left[1:4410],x = (1:4410)/wave2@samp.rate,  
+     main = "raw data, zoomed", type = "l", xlab = "time", ylab = "")
 
 fft_calculator = function(timeSignal, log_rate){
   # calculate fft
@@ -49,7 +51,7 @@ amplitudeAndPhase = fft_data[["amplitudeAndPhase"]]
 frq = fft_data[["frq"]]
 
 plot(abs(amplitudeAndPhase), x = frq, type = "l", xlab = "freq (Hz)", 
-     ylab = "amplitude", main = "DFT spectrum")
+     ylab = "amplitude", main = "DFT spectrum", xlim = c(0, 5000))
 
 
 ##################################################################
@@ -66,9 +68,11 @@ rollingVar = rollapply(wave2@left, width = 20, FUN = var, fill = 0)
 rollingVar = rollingVar - mean(rollingVar)
 
 # plot data
-plot(y = rollingVar, x = (1:length(wave2@left))/wave2@samp.rate, main = "rolling variance", type = "l", xlab = "time (s)")
+plot(y = rollingVar, x = (1:length(wave2@left))/wave2@samp.rate, 
+     main = "rolling variance", type = "l", xlab = "time (s)")
 
-plot(y = rollingVar[1:4410],x = (1:4410)/wave2@samp.rate,  main = "rolling var, zoomed", type = "l", xlab = "time", ylab = "")
+plot(y = rollingVar[1:4410],x = (1:4410)/wave2@samp.rate,  
+     main = "rolling var, zoomed", type = "l", xlab = "time", ylab = "")
 
 fft_data = fft_calculator(rollingVar, wave2@samp.rate)
 
@@ -110,6 +114,7 @@ points(y = wave2@left[pks],x = ((1:length(wave2@left))/wave2@samp.rate)[pks])
 
 # plot instantaneous freq
 ifreq = 1/(diff(pks)/wave2@samp.rate)
-plot(y = ifreq, x = ((1:length(wave2@left))/wave2@samp.rate)[pks][0:length(ifreq)], ylab = "freq (Hz)", xlab = "time (s)", type = "l")
+plot(y = ifreq, x = ((1:length(wave2@left))/wave2@samp.rate)[pks][0:length(ifreq)], 
+     ylab = "freq (Hz)", xlab = "time (s)", type = "l")
 
 
