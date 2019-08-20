@@ -294,6 +294,95 @@ plot(flightFreq, buzzFreq)
 
 
 
+bootDiff7<- function(){
+  y1 = rnorm(100)
+  y2 = rnorm(100)
+  
+  x1 = rnorm(100)
+  x2 = rnorm(100)
+  
+
+  s1 = summary(lm(I(y1 - y2) ~ I(x1 - x2)))
+  return(s1$coefficients[2, 4])
+  
+}
+
+reps = replicate(10000, bootDiff7())
+hist(reps)
 
 
 
+#######################################################
+# simulate 1% loading stuff
+
+
+bootCoup1 = function(){
+  f_h = rnorm(100, mean = 100)
+  f_l = rnorm(100, mean = 100)
+  
+  mstarved = rnorm(100, mean = 100)
+  m2h = rnorm(100, mean = 100)
+  m2l = rnorm(100, mean = 100)
+  mFh = rnorm(100, mean = 100)
+  mFl = rnorm(100, mean = 100)
+  
+  y = (f_h - f_l)*mstarved / 
+    ((m2h + mFh - m2l - mFl)*50)
+  apl = 25 / mstarved * (m2h + mFh + m2l + mFl - 4*mFl)
+
+  return(summary(lm(y~apl))$coef[2, c(1, 4)])
+
+}
+
+reps = replicate(5000, bootCoup1())
+hist(t(reps)[,2])
+mean(t(reps)[,2] < 0.05)
+
+plot(t(reps))
+
+hist(t(reps)[,1], breaks = 100)
+hist(t(reps)[,2])
+mean(t(reps)[,1])
+
+
+bootCoup2 = function(){
+  
+  y = rnorm(100)
+  x = rnorm(100)
+  
+  return(summary(lm(y~x))$coef[2, c(1, 4)])
+  
+}
+
+bootCoup2()
+reps = replicate(10000, bootCoup2())
+mean(t(reps)[,2] < 0.05)
+plot(t(reps))
+
+hist(t(reps)[,1])
+hist(t(reps)[,2])
+mean(t(reps)[,1])
+
+
+
+
+bootCoup3 = function(){
+  
+  y = rnorm(100)
+  x = rnorm(100)
+  
+  summary(lm(I(y-x)~x + 0 + I(x) ))
+  
+  return(summary(lm(I(y-x)~I(( x )/2)))$coef[2, c(1, 4)])
+  
+}
+
+
+reps = replicate(10000, bootCoup3())
+hist(t(reps)[,2])
+mean(t(reps)[,2] < 0.05)
+plot(t(reps))
+
+hist(t(reps)[,1])
+hist(t(reps)[,2])
+mean(t(reps)[,1])
