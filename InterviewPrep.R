@@ -59,10 +59,25 @@ lm_preds = predict(m0, newdata = x_to_predict)
 # fit quasibinomial model for proportion
 m1 = glm(I(yy/max(yy)) ~ xx , family = quasibinomial())
 
+
+summary(m1)
+
+b0 = -3.669082
+b1 = 0.075185 
+
+p1 = (exp(b0 + b1*x_to_predict$xx) / (1 + exp(b0 + b1*x_to_predict$xx)))*max(yy)
+
+
+
 # predict
 preds_glm = predict(m1, 
                 newdata = x_to_predict, 
                 type = "response")
+
+
+plot(p1, preds_glm)
+
+
 
 # fit Generalized Additive Model
 library(mgcv)
@@ -126,5 +141,75 @@ mean(reps)
 (999/1000) ^ 1000
 
 # actual answer, based on binomial distribution Bin(n = 1000, p = 1/1000)
-choose(1000, 0)*(1/1000)^0*(999/1000)^999
+choose(1000, 0)*(1/1000)^0*(999/1000)^1000
+
+
+
+## Calculate a CI for proportion
+set.seed(123)
+data = c(1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1, 1)
+table(data)
+hist(data)
+mean(data)
+
+# This uses the chisq distribution
+prop.test(sum(data == 1), length(data), correct = FALSE)
+
+# this is an exact test
+binom.test(sum(data == 1), length(data))
+
+
+# this is right for calculating a p-value for the exact test
+(dbinom(15, length(data), 0.5) + 
+  dbinom(16, length(data), 0.5) + 
+    dbinom(17, length(data), 0.5)  )*2
+
+
+# this is also right 
+# notice that q = 14 instead of 15 here, because it's p > x instead of p >= x
+pbinom(q = 14, size = 17, prob = 0.5, lower.tail = FALSE)*2
+
+
+# CI for prortion based on normal dist'n
+phat = 15/17
+sd_p = sqrt(phat*(1-phat))
+
+p_U = phat + 1.96*sd_p/sqrt(17)
+p_L = phat - 1.96*sd_p/sqrt(17)
+c(p_L, p_U)
+
+
+# CI based on GLM
+mod1 = glm(c(15, 2) ~ 1, family = binomial)
+
+
+
+binom.test(7, 12, p = 0.75, alternative = "two.sided")
+
+# this is how the binomial test is calculated (instead of just multiplying by 2)
+pbinom(7, 12, 0.75) + 1-pbinom(11, 12, 0.75)
+
+
+(  dbinom(7, 12, 0.75) + 
+  dbinom(6, 12, 0.75) + 
+  dbinom(5, 12, 0.75) + 
+  dbinom(4, 12, 0.75) + 
+  dbinom(3, 12, 0.75) + 
+  dbinom(2, 12, 0.75) + 
+  dbinom(1, 12, 0.75) + 
+  dbinom(0, 12, 0.75) + 
+    dbinom(12, 12, 0.75))
+
+
+plot(dbinom(1:12, 12, 0.75))
+
+
+
+##################
+choose(4,4) * choose(47,3) / choose(52, 4)
+5/48  
+
+
+
+
 
