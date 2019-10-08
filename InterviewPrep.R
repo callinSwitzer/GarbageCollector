@@ -408,7 +408,128 @@ choose(4,4) * choose(47,3) / choose(52, 4)
 5/48  
 
 
+install.packages("DMwR")
+library(DMwR)
+
+var1 = rep(c('a','a','a','c','e',NA), 10**6)
+var2 = rep(c('p1','p1','p1','p2','p3','p1'), 10**6)
+var3 = rep(c('o1','o1','o1','o2','o3','o1'), 10**6)
+
+df = data.frame('v1'=var1,'v2'=var2,'v3'=var3)
+df
+
+knnOutput <- DMwR::knnImputation(df, k = 5) 
+knnOutput
+
+##### Multinomial logistic regression
+
+# make repeating vectors of 6M rows each
+var1 = rep(c('a','a','a','c','e',NA), 10**6)
+var2 = rep(c('p1','p1','p1','p2','p3','p1'), 10**6)
+var3 = rep(c('o1','o1','o1','o2','o3','o1'), 10**6)
+df = data.frame('v1'=var1,'v2'=var2,'v3'=var3)
+head(df, 15)
+
+
+library(nnet)
+# fit multinomial model on only complete rows
+imputerModel = multinom(v1 ~ (v2+ v3)^2, data = na.omit(df))
+
+# predict missing data
+system.time({
+  predictions = predict(imputerModel, newdata = df[is.na(df$v1), ])
+})
+# fill in predictions
+df$multinom_preds[is.na(df$v1)] = as.character(predictions)
+head(df, 15)
 
 
 
->>>>>>> refs/remotes/origin/master
+############# random forest imputation --- TOO BIG, must store all data
+# make repeating vectors of 6M rows each
+var1 = rep(c('a','a','a','c','e',NA), 10**6)
+var2 = rep(c('p1','p1','p1','p2','p3','p1'), 10**6)
+var3 = rep(c('o1','o1','o1','o2','o3','o1'), 10**6)
+df = data.frame('v1'=var1,'v2'=var2,'v3'=var3)
+head(df, 15)
+
+
+# library(randomForest)
+# trainSet <- na.omit(df)
+# predictSet <- df[is.na(df$v1), ]
+# 
+# rfModel <- randomForest(v1 ~ ., data = trainSet, importance = FALSE)
+
+
+############ Naive Bayes
+var1 = rep(c('a','a','a','c','e',NA), 10**6)
+var2 = rep(c('p1','p1','p1','p2','p3','p1'), 10**6)
+var3 = rep(c('o1','o1','o1','o2','o3','o1'), 10**6)
+df = data.frame('v1'=var1,'v2'=var2,'v3'=var3)
+head(df, 15)
+
+library(e1071)
+trainSet <- na.omit(df)
+predictSet <- df[is.na(df$v1), ]
+Naive_Bayes_Model=naiveBayes(v1 ~ ., data = trainSet)
+system.time({
+  Naive_Bayes_Predictions = predict(Naive_Bayes_Model, newdata = predictSet)
+})
+Naive_Bayes_Predictions
+
+df$Naive_Bayes_Predictions[is.na(df$v1)] = as.character(Naive_Bayes_Predictions)
+head(df, 15)
+
+
+###########################################################################
+### Impute missing categories
+###########################################################################
+
+# make data with 6M rows
+var1 = rep(c('a','a','a','c','e',NA), 10**6)
+var2 = rep(c('p1','p1','p1','p2','p3','p1'), 10**6)
+var3 = rep(c('o1','o1','o1','o2','o3','o1'), 10**6)
+df = data.frame('v1'=var1,'v2'=var2,'v3'=var3)
+head(df, 15)
+
+
+#### Multinomial imputation
+library(nnet)
+# fit multinomial model on only complete rows
+imputerModel = multinom(v1 ~ (v2+ v3)^2, data = df[!is.na(df$v1), ])
+
+# predict missing data
+predictions = predict(imputerModel, newdata = df[is.na(df$v1), ])
+
+
+#### Naive Bayes
+
+library(naivebayes)
+library(fastDummies)
+# convert to dummy variables
+dummyVars <- fastDummies::dummy_cols(df, 
+                                     select_columns = c("v2", "v3"), 
+                                     ignore_na = TRUE)
+head(dummyVars)
+
+# create training set
+X_train <- na.omit(dummyVars)[, 4:ncol(dummyVars)]
+y_train <- na.omit(dummyVars)[, "v1"]
+
+X_to_impute <- dummyVars[is.na(df$v1), 4:ncol(dummyVars)]
+
+
+Naive_Bayes_Model=multinomial_naive_bayes(x = as.matrix(X_train), 
+                                          y = y_train)
+
+# predict missing data
+Naive_Bayes_preds = predict(Naive_Bayes_Model, 
+                                  newdata = as.matrix(X_to_impute))
+
+
+# fill in predictions
+df$multinom_preds[is.na(df$v1)] = as.character(predictions)
+df$Naive_Bayes_preds[is.na(df$v1)] = as.character(Naive_Bayes_preds)
+head(df, 15)
+
+
