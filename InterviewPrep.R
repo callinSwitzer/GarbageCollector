@@ -54,6 +54,7 @@ yy = c(0, yy)
 m0 = lm(yy ~ I(xx^3) + I(xx^2) + xx)
 
 x_to_predict = data.frame(xx = seq(0, 100, length.out = length(xx)))
+#x_to_predict = data.frame(xx = 34.5)
 lm_preds = predict(m0, newdata = x_to_predict)
 
 # fit quasibinomial model for proportion
@@ -128,3 +129,68 @@ mean(reps)
 # actual answer, based on binomial distribution Bin(n = 1000, p = 1/1000)
 choose(1000, 0)*(1/1000)^0*(999/1000)^999
 
+
+
+
+
+
+
+## FOREST PLOT
+
+install.packages("forestplot")
+library(forestplot)
+
+df <- structure(list(
+  mean = c(NA, 0.22, 0.20, 0.27),
+  lower = c(NA, 0.05, 0.04, 0.01),
+  upper = c(NA, 0.95, 1.08, 9.12)),
+  .Names = c("mean", "lower", "upper"),
+  row.names = c(NA, -4L),
+  class = "data.frame")
+
+tabletext <- cbind(
+  c("", "Pooled", "Group 1", "Group 2"),
+  c("N", "4334", "3354", "980"),
+  c("HR (95% CI)", "0.22 (0.05, 0.95)", "0.20 (0.04, 1.08)", "0.27 (0.01, 9.12)"),
+  c("p-value", "0.042", "0.061", "0.467")
+)
+
+ggfp <- forestplot(tabletext,
+                   df,
+                   new_page = TRUE,
+                   is.summary = c(TRUE, rep(FALSE, 3)),
+                   clip = c(0, 2),
+                   colgap = unit(5, "mm"),
+                   line.margin = unit(2, "mm"),
+                   lineheight = unit(1, "in"),
+                   txt_gp = fpTxtGp(label = gpar(cex = 1),
+                                    ticks = gpar(cex = 1)),
+                   align = c("l", "c", "c", "c"),
+                   boxsize = 0.2,
+                   xticks = seq(0, 2.0, 0.5), 
+                   zero = 1,
+                   col = fpColors(box = "royalblue",
+                                  line = "darkblue"),
+                   mar = unit(c(-1, 0.5, -2, 0.5), "in"))
+
+ggfp
+
+tiff("C:/Users/calli/Documents/GitRepos/GarbageCollector/forestplot.tiff", units = "in", width = 9, height = 7, res = 300)
+forestplot(tabletext,
+           df,
+           new_page = TRUE,
+           is.summary = c(TRUE, rep(FALSE, 3)),
+           clip = c(0, 2),
+           colgap = unit(5, "mm"),
+           line.margin = unit(2, "mm"),
+           lineheight = unit(1, "in"),
+           txt_gp = fpTxtGp(label = gpar(cex = 1),
+                            ticks = gpar(cex = 1)),
+           align = c("l", "c", "c", "c"),
+           boxsize = 0.2,
+           xticks = seq(0, 2.0, 0.5), 
+           zero = 1,
+           col = fpColors(box = "royalblue",
+                          line = "darkblue"),
+           mar = unit(c(-1, 0.5, -2, 0.5), "in"))
+dev.off()
