@@ -493,7 +493,7 @@ df = data.frame('v1'=var1,'v2'=var2,'v3'=var3)
 head(df, 15)
 
 
-#### Multinomial imputation
+## Multinomial imputation
 library(nnet)
 # fit multinomial model on only complete rows
 imputerModel = multinom(v1 ~ (v2+ v3)^2, data = df[!is.na(df$v1), ])
@@ -531,5 +531,38 @@ Naive_Bayes_preds = predict(Naive_Bayes_Model,
 df$multinom_preds[is.na(df$v1)] = as.character(predictions)
 df$Naive_Bayes_preds[is.na(df$v1)] = as.character(Naive_Bayes_preds)
 head(df, 15)
+
+
+
+
+# v1 v2 v3 v2_p1 v2_p2 v2_p3 v3_o1 v3_o2 v3_o3
+# 1    a p1 o1     1     0     0     1     0     0
+# 2    a p1 o1     1     0     0     1     0     0
+# 3    a p1 o1     1     0     0     1     0     0
+# 4    c p2 o2     0     1     0     0     1     0
+# 5    e p3 o3     0     0     1     0     0     1
+# 6 <NA> p1 o1     1     0     0     1     0     0
+
+
+
+
+
+
+xx = 1:100
+yy = xx + rnorm(100)
+m1 <- lm(yy ~ xx)
+summary(m1)
+confint(m1, level = 0.9)
+
+# use 0.05 since it's a two-sided test
+qt(p = 0.05, df = 43, lower.tail = FALSE)
+
+summary(m1)$coef[2,2]
+
+summary(m1)$coef[2,1] + qt(p = 0.05, df = 98, lower.tail = FALSE)*summary(m1)$coef[2,2]
+summary(m1)$coef[2,1] - qt(p = 0.05, df = 98, lower.tail = FALSE)*summary(m1)$coef[2,2]
+confint(m1, level = 0.9)
+
+1.002615 - qt(p = 0.05, df = 43, lower.tail = FALSE)*0.003609
 
 
