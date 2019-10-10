@@ -486,9 +486,9 @@ head(df, 15)
 ###########################################################################
 
 # make data with 6M rows
-var1 = rep(c('a','a','a','c','e',NA), 10**6)
-var2 = rep(c('p1','p1','p1','p2','p3','p1'), 10**6)
-var3 = rep(c('o1','o1','o1','o2','o3','o1'), 10**6)
+var1 = rep(c('a','a','a','c','e',NA), 10)
+var2 = rep(c('p1','p1','p1','p2','p3','p1'), 10)
+var3 = rep(c('o1','o1','o1','o2','o3','o1'), 10)
 df = data.frame('v1'=var1,'v2'=var2,'v3'=var3)
 head(df, 15)
 
@@ -496,7 +496,9 @@ head(df, 15)
 ## Multinomial imputation
 library(nnet)
 # fit multinomial model on only complete rows
-imputerModel = multinom(v1 ~ (v2+ v3)^2, data = df[!is.na(df$v1), ])
+imputerModel = multinom(v1 ~ (v2+ v3), data = df[!is.na(df$v1), ])
+
+summary(imputerModel)
 
 # predict missing data
 predictions = predict(imputerModel, newdata = df[is.na(df$v1), ])
