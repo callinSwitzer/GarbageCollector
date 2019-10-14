@@ -568,3 +568,22 @@ confint(m1, level = 0.9)
 1.002615 - qt(p = 0.05, df = 43, lower.tail = FALSE)*0.003609
 
 
+
+### FUZZY Matching
+company <- read.table(text = "
+          CompanyName
+          'MERCK SHARP & DOHME CORPORATION'
+          'GILEAD SCIENCES INC'
+          'BOEHRINGER INGELHEIM PHARMACEUTICALS, INC.'
+          'ABBVIE, INC.'
+          'JANSSEN SCIENTIFIC AFFAIRS, LLC'
+          'BOEHRINGER INGELHEIM PHARMA GMBH & CO.KG'
+          'ASAHI INTECC CO., LTD.'
+          'Asahi Intecc USA Inc'
+", header = TRUE, stringsAsFactors = FALSE)
+
+
+distMatrix = adist(company$CompanyName)
+
+# hclust
+plot(hclust(as.dist(distMatrix), method = "single"), labels = company$CompanyName)
