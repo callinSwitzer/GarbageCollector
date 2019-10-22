@@ -587,3 +587,17 @@ distMatrix = adist(company$CompanyName)
 
 # hclust
 plot(hclust(as.dist(distMatrix), method = "single"), labels = company$CompanyName)
+
+
+# how to scrape HTML Table
+library("rvest")
+url <- "https://www.epa.gov/wqc/national-recommended-water-quality-criteria-human-health-criteria-table"
+table_list <- url %>%
+  read_html() %>%
+  # I copied
+  html_nodes(xpath='/html/body/section/div[2]/div[1]/div/div/table') %>%
+  html_table() 
+
+html_table = table_list[[1]]
+head(html_table[, 1:2])
+
