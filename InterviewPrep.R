@@ -601,3 +601,24 @@ table_list <- url %>%
 html_table = table_list[[1]]
 head(html_table[, 1:2])
 
+
+
+
+
+aa = c(1,2,2,2,2,4,4,4,4,4,4)
+bb = 1:length(aa)
+plot(bb, aa)
+a2 = as.ordered(as.factor(aa))
+
+
+summary(lm(bb ~ a2))
+
+
+a3 = factor(a2, ordered = FALSE)
+a3
+
+cc = data.frame(a2, bb)
+cc
+cc$a2
+cc$a2 <- factor(cc$a2, ordered = FALSE)
+cc$a2
