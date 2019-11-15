@@ -622,3 +622,53 @@ cc
 cc$a2
 cc$a2 <- factor(cc$a2, ordered = FALSE)
 cc$a2
+
+
+load("C:\\Users\\calli\\Desktop\\wavedata.rda")
+plot(x = wavedata$DateTime[1:500], y = wavedata$swDepth.m[1:500], type = "l")
+
+fft_calculator = function(timeSignal, log_rate){
+  # calculate fft
+  n = length(timeSignal)
+  Y = fft(timeSignal)/n
+  amplitudeAndPhase = Y[(1:(n/2))]*2 # these are complex numbers
+  
+  # calculate fft frequencies
+  k = 0:n
+  Ts = n/log_rate
+  frq = k/Ts # two side frequency range
+  frq = frq[1:(n/2)] # one side frequency range
+  
+  return(list('amplitudeAndPhase' = amplitudeAndPhase, "frq" =  frq, "Y" = Y))
+}
+
+
+fft_data = fft_calculator(wavedata$swDepth.m[1:500] - mean(wavedata$swDepth.m[1:500]), 4)
+
+
+amplitudeAndPhase = fft_data[["amplitudeAndPhase"]]
+frq = fft_data[["frq"]]
+
+plot(abs(amplitudeAndPhase), x = frq, type = "l", xlab = "freq (cycles per second)", 
+     ylab = "amplitude", main = "DFT spectrum", xlim = c(0, 3))
+
+inv_fft = fft(fft_data[["Y"]], inverse = TRUE)
+plot(x = wavedata$DateTime[1:500], y = Re(inv_fft), type = "l")
+lines(x = wavedata$DateTime[1:500], y = wavedata$swDepth.m[1:500] - mean(wavedata$swDepth.m[1:500]), col = "red", type = "l")
+
+which.max(abs(amplitudeAndPhase))
+
+
+amplitudeAndPhase[1:10]
+
+xx = 1:300
+initialVal = 0
+for (ii in 1:length(amplitudeAndPhase))
+{
+  initialVal = initialVal + abs(amplitudeAndPhase)[ii] * sin(2*pi*xx*frq[ii] + Im(amplitudeAndPhase)[ii])
+  
+}
+
+
+plot(initialVal, type = "l")
+
