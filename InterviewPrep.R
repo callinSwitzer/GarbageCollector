@@ -625,7 +625,7 @@ cc$a2
 
 
 load("C:\\Users\\calli\\Desktop\\wavedata.rda")
-plot(x = wavedata$DateTime[1:500], y = wavedata$swDepth.m[1:500], type = "l")
+plot(x = wavedata$DateTime[1:2500], y = wavedata$swDepth.m[1:2500], type = "l")
 
 fft_calculator = function(timeSignal, log_rate){
   # calculate fft
@@ -639,11 +639,11 @@ fft_calculator = function(timeSignal, log_rate){
   frq = k/Ts # two side frequency range
   frq = frq[1:(n/2)] # one side frequency range
   
-  return(list('amplitudeAndPhase' = amplitudeAndPhase, "frq" =  frq, "Y" = Y))
+  return(list('amplitudeAndPhase' = amplitudeAndPhase, "frq" =  frq, "Y" = Y, "frq2" = k/Ts))
 }
 
 
-fft_data = fft_calculator(wavedata$swDepth.m[1:500] - mean(wavedata$swDepth.m[1:500]), 4)
+fft_data = fft_calculator(wavedata$swDepth.m[1:2500] - mean(wavedata$swDepth.m[1:2500]), 4)
 
 
 amplitudeAndPhase = fft_data[["amplitudeAndPhase"]]
@@ -653,22 +653,103 @@ plot(abs(amplitudeAndPhase), x = frq, type = "l", xlab = "freq (cycles per secon
      ylab = "amplitude", main = "DFT spectrum", xlim = c(0, 3))
 
 inv_fft = fft(fft_data[["Y"]], inverse = TRUE)
-plot(x = wavedata$DateTime[1:500], y = Re(inv_fft), type = "l")
-lines(x = wavedata$DateTime[1:500], y = wavedata$swDepth.m[1:500] - mean(wavedata$swDepth.m[1:500]), col = "red", type = "l")
+plot(x = wavedata$DateTime[1:2500], y = Re(inv_fft), type = "l")
+lines(x = wavedata$DateTime[1:2500], y = wavedata$swDepth.m[1:2500] - mean(wavedata$swDepth.m[1:2500]), col = "red", type = "l")
 
-which.max(abs(amplitudeAndPhase))
-
-
-amplitudeAndPhase[1:10]
-
-xx = 1:300
+####################### PREDICT THE FUTURE ###############
 initialVal = 0
-for (ii in 1:length(amplitudeAndPhase))
-{
-  initialVal = initialVal + abs(amplitudeAndPhase)[ii] * sin(2*pi*xx*frq[ii] + Im(amplitudeAndPhase)[ii])
-  
+xx2 = seq(0, 7*60, by = 0.25)
+
+for (ii in 1:length(fft_data[["Y"]])){
+  initialVal = initialVal + fft_data[["Y"]][ii] * cos(2*pi*xx2*fft_data[["frq2"]][ii] - 
+                                                        atan(Im(fft_data[["Y"]][ii])/Re(fft_data[["Y"]][ii])))
 }
 
+plot(wavedata$swDepth.m[1:1500] - mean(wavedata$swDepth.m[1:1500]), type = "l")
+lines(Re(inv_fft), type = "l", col = "red")
+lines(Re(initialVal), type = "l", col = "blue")
 
-plot(initialVal, type = "l")
 
+lines(wavedata$swDepth.m[1:1500]- mean(wavedata$swDepth.m[1:1500]), type = "l", col = "red")
+
+inv_fft = fft(fft_data[["Y"]], inverse = TRUE)
+lines(Re(inv_fft), col= 'red', type = "l")
+
+
+
+####################
+library(signal)
+xx = seq(0, 5.6, by = 0.001)
+yy = 3 * sin(2 * pi * xx * 1.4 + (90 / 360) * (2*pi))  +  3 * sin(3.3 * pi * xx * 3)
+#yy = hanning(length(yy))*yy
+plot(xx, yy, type = "l")
+
+
+
+
+fft_data = fft_calculator(yy, 1000)
+
+
+amplitudeAndPhase = fft_data[["amplitudeAndPhase"]]
+frq = fft_data[["frq"]]
+
+plot(abs(amplitudeAndPhase), x = frq, type = "l", xlab = "freq (cycles per second)", 
+     ylab = "amplitude", main = "DFT spectrum", xlim = c(0, 100))
+
+#plot(abs(fft_data[["Y"]]), type = "l")
+
+#fft_data[["Y"]][abs(fft_data[["Y"]]) < 0.9] = 0
+
+which.max(abs(fft_data[["Y"]]))
+initialVal = 0
+xx2 = seq(0, 8, by = 0.001)
+
+for (ii in 1:length(fft_data[["Y"]])){
+  phase = atan2(Im(fft_data[["Y"]][ii]), Re(fft_data[["Y"]][ii]))
+  initialVal = initialVal + abs(fft_data[["Y"]][ii]) * cos(2*pi*xx2*fft_data[["frq2"]][ii] + phase)
+}
+
+plot(yy, type = "l", col = "red", xlim = c(0,10)*1000)
+points(Re(initialVal), pch = "."); lines(yy, col = "red", lwd = 2)
+
+
+inv_fft = fft(fft_data[["Y"]], inverse = TRUE)
+lines(Re(inv_fft), col= 'blue', type = "l")
+yy2 = 3 * sin(2 * pi * xx2 * 1.4 + (90 / 360) * (2*pi))  +  3 * sin(3.3 * pi * xx2 * 3)
+lines(5000:length(yy2), yy2[5000:length(yy2)], col = "red")
+
+
+
+
+below_cutoff = abs(fft_data[["Y"]]) < 1
+fft_data[["Y"]][below_cutoff] = 0
+inv_fft = fft(fft_data[["Y"]], inverse = TRUE)
+plot(Re(inv_fft), col= 'blue', type = "l")
+lines(yy, type = "l", col = "red")
+
+plot(abs(fft_data[["Y"]]), type = "l")
+#####################################################
+xx = seq(0, 2, by = 0.001)
+yy = 3 * sin(2 * pi * xx * 1.4 + (90 / 360) * (2*pi))#  +  3 * sin(2 * pi * xx * 3) + 0.3 * sin(2 * pi * xx * 30)
+plot(xx, yy, type = "l")
+
+library(forecast)
+m1 = auto.arima(yy)
+plot(forecast(m1,h=500))
+
+
+
+#################################################################
+SSTlm2 <- lm(yy ~ xx + sin(2*pi*xx)+cos(2*pi*xx) + sin(4*pi*xx)+cos(4*pi*xx) + sin(6*pi*xx)+cos(6*pi*xx))
+summary(SSTlm2)
+plot(xx, yy)
+lines(xx, SSTlm2$fitted.values)
+
+
+
+
+
+
+
+
+#######################
