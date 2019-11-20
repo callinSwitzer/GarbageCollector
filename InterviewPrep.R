@@ -729,9 +729,18 @@ lines(yy, type = "l", col = "red")
 
 plot(abs(fft_data[["Y"]]), type = "l")
 #####################################################
-xx = seq(0, 2, by = 0.001)
-yy = 3 * sin(2 * pi * xx * 1.4 + (90 / 360) * (2*pi))#  +  3 * sin(2 * pi * xx * 3) + 0.3 * sin(2 * pi * xx * 30)
+xx = seq(0, 3, by = 0.001)
+yy = 3 * sin(2 * pi * xx * 1.4 + (45 / 360) * (2*pi)) + rnorm(length(xx))#  +  3 * sin(2 * pi * xx * 3) + 0.3 * sin(2 * pi * xx * 30)
 plot(xx, yy, type = "l")
+
+
+m1 = lm(yy ~ xx + sin(2*pi*xx*1.4)+cos(2*pi*xx*1.4))
+xplot = seq(3, 5, by = 0.001)
+plot(xx, yy, type = "l", xlim = c(min(xx), max(xplot)))
+
+lines(xplot, predict(m1, newdata = data.frame(xx = xplot)), col= 'red')
+
+
 
 library(forecast)
 m1 = auto.arima(yy)
@@ -753,3 +762,61 @@ lines(xx, SSTlm2$fitted.values)
 
 
 #######################
+t = xx = seq(0, 2, by = 0.001)
+y = 3 * sin(2 * pi * xx * 1.4 + (90 / 360) * (2*pi))#  +  3 * sin(2 * pi * xx * 3) + 0.3 * sin(2 * pi * xx * 30)
+t = xx = 1:length(y)
+plot(xx, y, type = "l")
+
+ssp <- spectrum(y)  
+per <- 1/ssp$freq[ssp$spec==max(ssp$spec)]
+reslm <- lm(y ~ xx +  sin(2*pi*xx/per)+cos(2*pi*xx/per))
+summary(reslm)
+
+rg <- diff(range(y))
+plot(y~xx,ylim=c(min(y)-0.1*rg,max(y)+0.1*rg))
+lines(fitted(reslm)~xx,col=4,lty=2)   # dashed blue line is sin fit
+
+# including 2nd harmonic really improves the fit
+reslm2 <- lm(y ~ sin(2*pi/per*t)+cos(2*pi/per*t)+sin(4*pi/per*t)+cos(4*pi/per*t))
+summary(reslm2)
+lines(fitted(reslm2)~t,col=3)    # solid green line is periodic with second 
+
+
+
+
+Time = xx = seq(0, 2, by = 0.001)
+temperature = 3 * sin(2 * pi * xx * 1.4 + (90 / 360) * (2*pi))#  +  3 * sin(2 * pi * xx * 3) + 0.3 * sin(2 * pi * xx * 30)
+Time = 1:length(temperature)
+
+xc<-cos(2*pi*Time/366)
+xs<-sin(2*pi*Time/366)
+fit.lm <- lm(temperature~xc+xs)
+
+# access the fitted series (for plotting)
+fit <- fitted(fit.lm)  
+
+# find predictions for original time series
+pred <- predict(fit.lm, newdata=data.frame(Time=Time))    
+
+plot(temperature ~ Time)
+lines(fit, col="red")
+lines(Time, pred, col="blue")
+
+
+
+
+xx = seq(0, 5, length.out = 1000)
+Degrees = 3 * sin(2*pi*0.6*xx)
+
+library(forecast)
+
+Degrees.ts <- ts(Degrees, start=c(2010,1), frequency=12)
+
+Degree.trend <- auto.arima(Degrees.ts)
+
+degrees.forecast <- forecast(Degree.trend, h=12, level=c(80,95), fan=F)
+
+plot(degrees.forecast, las=1, main="", xlab="Time", ylab="Degrees")
+
+
+
