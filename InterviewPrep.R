@@ -679,9 +679,9 @@ lines(Re(inv_fft), col= 'red', type = "l")
 
 ####################
 library(signal)
-xx = seq(0, 5.6, by = 0.001)
-yy = 3 * sin(2 * pi * xx * 1.4 + (90 / 360) * (2*pi))  +  3 * sin(3.3 * pi * xx * 3)
-#yy = hanning(length(yy))*yy
+xx = seq(0, 10.5, by = 0.001)
+yy = 3 * sin(2 * pi * xx * 1.4 + (90 / 360) * (2*pi))  +  3 * sin(3 * pi * xx * 3)
+yy = hanning(length(yy))*yy
 plot(xx, yy, type = "l")
 
 
@@ -729,23 +729,33 @@ lines(yy, type = "l", col = "red")
 
 plot(abs(fft_data[["Y"]]), type = "l")
 #####################################################
-xx = seq(0, 3, by = 0.001)
-yy = 3 * sin(2 * pi * xx * 1.4 + (45 / 360) * (2*pi)) + rnorm(length(xx))#  +  3 * sin(2 * pi * xx * 3) + 0.3 * sin(2 * pi * xx * 30)
+xx = seq(0, 10, by = 0.01)
+y = function(xx){
+  3 * sin(2 * pi * xx * 1.4 + (45 / 360) * (2*pi))# +  
+    #3 * sin(2 * pi * xx * 3) 
+}
+yy = y(xx) + rnorm(length(xx))
 plot(xx, yy, type = "l")
 
 
 m1 = lm(yy ~ xx + sin(2*pi*xx*1.4)+cos(2*pi*xx*1.4))
-xplot = seq(3, 5, by = 0.001)
+xplot = seq(10, 12, by = 0.01)
 plot(xx, yy, type = "l", xlim = c(min(xx), max(xplot)))
 
 lines(xplot, predict(m1, newdata = data.frame(xx = xplot)), col= 'red')
+lines(xplot, y(xplot), col= 'red')
 
 
 
 library(forecast)
-m1 = auto.arima(yy)
+m1 = auto.arima(yy, stationary = TRUE, )
 plot(forecast(m1,h=500))
 
+
+
+m2 = Arima(yy, c(10, 0, 2))
+plot(forecast(m2,h=500))
+lines(x = 1001:(1000 + length(xplot)), y = y(xplot), col = "red")
 
 
 #################################################################
