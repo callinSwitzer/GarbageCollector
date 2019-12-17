@@ -1,0 +1,119 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# LMER Example
+# Callin Switzer
+# 17 Dec 2019
+
+
+
+### import packages
+
+```{r, message=FALSE, warning = FALSE}
+
+library("tidyverse")
+library("lme4")
+library("lmerTest")
+```
+
+
+# Simulate data
+
+```{r}
+set.seed(1)
+df = data.frame("ID" = sample(1:30, size = 100, replace = TRUE))
+df2 <- df %>%
+  group_by(ID) %>%
+  count()
+df2$treatment = sample(c("exper", "ctrl", "sham"), size = nrow(df2), 
+                      prob = c(0.2, 0.4, 0.4), replace = TRUE)
+df2$meanEffect = dplyr::recode(df2$treatment, sham = 0, ctrl = 0, exper = 0.2)
+df2$ID_effect = rnorm(nrow(df2))*0.1
+df3 = df2[rep(seq_len(nrow(df2)), df2$n), ]
+df3$measurement = df3$meanEffect + rnorm(nrow(df3))*0.01 + df3$ID_effect
+df3$meanEffect = NULL
+df3$ID_effect = NULL
+df3$n= NULL
+df3 <- df3 %>%
+  group_by(ID) %>%
+  mutate(trial_number = row_number()) %>%
+  ungroup()
+
+# add an outlier
+df3[1, "measurement"] = 0.9
+
+df3
+
+
+```
+
+
+# Plotting
+
+
+```{r}
+# plot first trial
+ggplot(df3[df3$trial_number == 1, ], 
+       aes(x = treatment, y = measurement, fill = treatment)) + 
+  geom_violin(alpha = 0.2) + 
+  geom_point(aes(color = as.factor(ID)), 
+             position = position_dodge(width = 0.3))
+
+
+# plot all trials
+ggplot(df3, aes(x = treatment, y = measurement, fill = treatment)) + 
+  geom_violin(alpha = 0.2) + 
+  geom_point(aes(color = as.factor(ID)), 
+             position = position_dodge(width = 0.3))
+
+```
+
+# Modeling
+
+```{r}
+
+# model with 1st trial only
+m1  = lm(measurement ~ treatment, 
+         data = df3[df3$trial_number == 1, ])
+summary(m1) # summarize model
+
+# diagnostics for linear model
+par(mfrow = c(2,3))
+plot(m1, which = 1:6)
+par(mfrow = c(1,1))
+## you can identify the outlier in the normal Q-Q plot
+
+
+
+## Side note -- here's how you fit ANOVA
+## it's the same p-value as the linear model above
+anova_model = aov(measurement ~ treatment, df3[df3$trial_number == 1, ])
+summary(anova_model)
+
+
+```
+
+# LMER Modeling
+
+```{r}
+# model with all trials -- this is a Linear Mixed Effects Model
+# ID is entered as a random effect
+m2 <- lmer(measurement ~ treatment + (1|ID), data = df3)             
+summary(m2)
+
+# Test for overall significance of treatment
+# this is called a likelihood ratio test.
+anova(m2, update(m2, .~. - treatment))
+
+
+
+## Diagnostics
+plot(m2) # residual plot for all residuals
+
+## qqplot for random effects
+qqnorm(ranef(m2)$ID[[1]], main="Normal Q-Q plot for random effects")
+qqline(ranef(m2)$ID[[1]])
+
+```
