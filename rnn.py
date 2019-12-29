@@ -8,7 +8,7 @@ import json, os.path, base64, copy, random
 
 
 def encode(ndarray):
-    return json.dumps([str(ndarray.dtype),base64.b64encode(ndarray),ndarray.shape])
+    return json.dumps([str(ndarray.dtype),base64.b64encode(ndarray).decode("utf-8"),ndarray.shape])
 
 def decode(jsonDump):
     loaded = json.loads(jsonDump)
