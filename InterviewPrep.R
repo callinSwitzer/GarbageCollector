@@ -828,5 +828,31 @@ degrees.forecast <- forecast(Degree.trend, h=12, level=c(80,95), fan=F)
 
 plot(degrees.forecast, las=1, main="", xlab="Time", ylab="Degrees")
 
+## plot binomial (100, 0.5)
+xx = 0:100
+
+bin <- function(xx){
+  choose(100, xx)*0.5^xx*0.5^(100 -xx)
+}
+fx = sapply(xx, function(xx) bin(xx))
+plot(xx, fx)
+sum(fx[75:length(fx)])
+
+fxx = dnorm(xx, mean = 50, sd = 5 )
+lines(xx, fxx)
 
 
+8!
+8
+
+factorial(8)
+
+choose(8,1) + choose(8,2) + choose(8,3) + choose(8,4) + choose(8,5) + choose(8,6) + choose(8,7) + choose(8,8)
+factorial(5)
+
+choose(5,1) + choose(5,2) + choose(5,3) + choose(5,4) + choose(5,5)
+
+factorial(3)
+choose(4,1) + choose(4,2) + choose(4,3) + choose(4,4)
+
+combn(letters[1:4],2)
